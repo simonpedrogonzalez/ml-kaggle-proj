@@ -1,0 +1,93 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+
+        },
+        {
+            "name": "Homework 2 Exercise 2a",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/h2e2a_adaboost.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Homework 2 Exercise 2b",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/h2e2b_bagged_trees.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Homework 2 Exercise 2c Bagging Advantage",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/h2e2c_bagging_advantage.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Homework 2 Exercise 3 Credit Default Dataset",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/h2e3_credit_card_default.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Homework 2 Exercise 2e RF Advantage",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/h2e2e_random_forest_advantage.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Homework 2 Exercise 2d",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/h2e2d_random_forest.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Homework 1 Exercise 2",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "decision_tree/h1e2_cars.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Homework 1 Exercise 3",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "decision_tree/h1e3_bank.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Test ID3",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "decision_tree/test_id3.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Test Bagged Trees",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/test_bagged_trees.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Test ADA",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "ensemble_learning/test_adaboost.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}

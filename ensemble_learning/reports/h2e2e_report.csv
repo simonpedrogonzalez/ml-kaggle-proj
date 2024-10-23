@@ -1,0 +1,2 @@
+single_tree_bias,bagged_tree_bias,single_tree_variance,bagged_tree_variance,single_tree_error_estimation,bagged_tree_error_estimation
+0.341673774754951,0.39814010802160427,0.32794814962992597,0.08933338667733547,0.6696219243848769,0.48747349469893975

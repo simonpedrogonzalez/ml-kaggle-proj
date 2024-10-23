@@ -1,0 +1,19 @@
+\begin{longtable}{lrrlrr}
+\toprule
+Method & Learning Rate & N Iterations & Convergence Criterion & Train data Cost & Test data Cost \\
+\midrule
+\endfirsthead
+\toprule
+Method & Learning Rate & N Iterations & Convergence Criterion & Train data Cost & Test data Cost \\
+\midrule
+\endhead
+\midrule
+\multicolumn{6}{r}{Continued on next page} \\
+\midrule
+\endfoot
+\bottomrule
+\endlastfoot
+Batch Gradient Descent & 0.500000 & 5456.000000 & $||w_t-w_{t-1}|| \leq 10^{-5}$ & 0.286137 & 0.439811 \\
+Stochastic Gradient Descent & 0.001953 & 200.000000 & $||w_t-w_{t-1}|| \leq 10^{-5}$ & 0.368611 & 0.501612 \\
+Analytical Regressor &  &  &  & 0.286137 & 0.439915 \\
+\end{longtable}
