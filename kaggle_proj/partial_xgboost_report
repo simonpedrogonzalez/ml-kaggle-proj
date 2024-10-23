@@ -1,0 +1,15 @@
+
+RANDOM SEARCH
+            precision    recall  f1-score   support
+
+         0.0       0.90      0.94      0.92      3797
+         1.0       0.79      0.66      0.72      1203
+
+    accuracy                           0.87      5000
+   macro avg       0.84      0.80      0.82      5000
+weighted avg       0.87      0.87      0.87      5000
+
+0.927938033942446
+
+Default:
+0.9265649413469224

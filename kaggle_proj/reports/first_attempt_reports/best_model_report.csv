@@ -1,0 +1,2 @@
+train_error,test_error,best_model
+0.16585,0.1658,ada_stump_default

@@ -3,12 +3,53 @@ import pandas as pd
 from utils.stats import sample
 
 class Dataset:
-    def __init__(self, train, test, train_labels, test_labels):
+    def __init__(self, train, test, train_labels, test_labels, to_predict=None):
         self.train = train
         self.test = test
         self.train_labels = train_labels
         self.test_labels = test_labels
-    
+        self.to_predict = to_predict
+        try:
+            self.all_data, self.indices = self.get_all_data()
+            self.all_labels = self.get_all_labels()
+        except:
+            pass
+
+
+    def get_all_labels(self):
+        all_labels = self.train_labels
+        if self.test_labels is not None:
+            all_labels = pd.concat([all_labels, self.test_labels])
+        all_labels = all_labels.reset_index(drop=True)
+        return all_labels
+
+    def get_all_data_pandas(self, train, test, to_predict):
+        alldata = train
+        if test is not None:
+            alldata = pd.concat([alldata, test])
+        if to_predict is not None:
+            alldata = pd.concat([alldata, to_predict])
+        alldata = alldata.reset_index(drop=True)
+        indices = {
+            'train': range(train.shape[0]),
+            'test': range(train.shape[0], train.shape[0] + test.shape[0]) if test is not None else None,
+            'to_predict': range(train.shape[0] + test.shape[0], alldata.shape[0]) if to_predict is not None else None
+        }
+        return alldata, indices
+
+    def get_all_data(self):
+        if isinstance(self.train, pd.DataFrame):
+            return self.get_all_data_pandas(self.train, self.test, self.to_predict)
+        else:
+            raise ValueError('Invalid data type')
+            # Assume CatEncodedDataset
+            # train = self.train.to_pandas()
+            # test = self.test.to_pandas() if self.test is not None else None
+            # to_predict = self.to_predict.to_pandas() if self.to_predict is not None else None
+            # alldata, indices = self.get_all_data_pandas(train, test, to_predict)
+            # # Go back to CatEncodedDataset
+            # return CatEncodedDataFrame().from_pandas(alldata), indices
+
     def to_numpy(self):
         return Dataset(
             self.train.values,
@@ -16,6 +57,41 @@ class Dataset:
             self.train_labels.values,
             self.test_labels.values if self.test_labels is not None else None
         )
+
+    def apply_transform_on_all_data(self, transform):
+        """Applied as a whole on the concatenated data"""
+        data = self.all_data.copy()
+        data = transform(data)
+        if isinstance(data, pd.DataFrame):
+            self.all_data = data
+            self.train = data.loc[self.indices['train']]
+            if self.test is not None:
+                self.test = data.loc[self.indices['test']]
+            if self.to_predict is not None:
+                self.to_predict = data.loc[self.indices['to_predict']]
+            return self
+        else:
+            self.all_data = data
+            self.train = data[self.indices['train']]
+            if self.test is not None:
+                self.test = data[self.indices['test']]
+            if self.to_predict is not None:
+                self.to_predict = data[self.indices['to_predict']]
+            return self
+    
+    def apply_transform_on_all_labels(self, transform):
+        """Applied as a whole on the concatenated labels"""
+        all_labels = transform(self.all_labels)
+        if isinstance(all_labels, pd.Series):
+            self.train_labels = self.all_labels.loc[self.indices['train']]
+            if self.test_labels is not None:
+                self.test_labels = self.all_labels.loc[self.indices['test']]
+            return self
+        else:
+            self.train_labels = all_labels[self.indices['train']]
+            if self.test_labels is not None:
+                self.test_labels = all_labels[self.indices['test']]
+            return self
 
 def cars_dataset():
     cols = ['buying', 'maint', 'doors', 'persons', 'lug_boot', 'safety', 'class']
@@ -152,3 +228,26 @@ def regression_toy_dataset():
     train = df
     train_labels = pd.Series(y)
     return Dataset(train, None, train_labels, None)
+
+
+def income_level_dataset():
+    df = pd.read_csv('data/income_level/train_final.csv')
+    # take 20% of the data for testing
+    train_size = int(0.8 * df.shape[0])
+    train = df.sample(n=train_size, random_state=0)
+    target = "income>50K"
+    test = df.drop(train.index)
+    train_labels = train[target]
+    train = train.drop(target, axis=1)
+    test_labels = test[target]
+    test = test.drop(target, axis=1)
+    # to predict data
+    df2 = pd.read_csv('data/income_level/test_final.csv')
+    df2.drop('ID', axis=1, inplace=True)
+    return Dataset(train, test, train_labels, test_labels, df2)
+
+
+def income_level_dataset_plain():
+    df = pd.read_csv('data/income_level/train_final.csv')
+    df2 = pd.read_csv('data/income_level/test_final.csv')
+    return Dataset(df, None, None, None, df2)

@@ -1,0 +1,4 @@
+metric,depth,train_error,test_error
+infogain,14,0.03875,0.1922
+gini,14,0.03875,0.1954
+majerr,14,0.03875,0.1854

@@ -1,0 +1,2 @@
+Best Parameters:
+{'alpha': 0.42200468581298445, 'colsample_bytree': 0.7481475627503198, 'gamma': 0.2722306660745843, 'lambda': 1.6844055113191525, 'learning_rate': 0.16209292125521335, 'max_depth': 4, 'min_child_weight': 1, 'n_estimators': 222, 'subsample': 0.8866874343070568}

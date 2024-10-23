@@ -17,12 +17,27 @@ def transform_num_to_bin_median(X: pd.DataFrame):
             X[feature] = np.where(X[feature] > median, gt_median_str, leq_median_str)
     return X
 
+def safe_qcut(x):
+    try:
+        return pd.qcut(x, q=4, labels=False)
+    except ValueError:
+        # take the category with the most values
+        most_common = x.value_counts().index[0]
+        # endode as 0 the most common category
+        # and the others, perform recursive call on qcut
+        # add the results to a single array
+        others = safe_qcut(x[x != most_common])
+        x = x.copy()
+        x[x==most_common] = 0
+        x[x!=0] = others + 1
+        return x
+
 def transform_num_to_cat(X: pd.DataFrame, strat='qcut'):
     """Use a binning strategy to categorize numerical features."""
     X = X.copy()
 
     binnin_strats = {
-        'qcut': lambda x: pd.qcut(x, q=4, labels=False), # take a pd series
+        'qcut': lambda x: safe_qcut(x),
     }
 
     for feature in X.columns:
@@ -192,4 +207,10 @@ def dataset_to_cat_encoded_dataset(dataset: Dataset):
     else:
         new_test = None
         new_test_labels = None
-    return Dataset(train=new_train, test=new_test, train_labels=new_train_labels, test_labels=new_test_labels)
+    if dataset.to_predict is not None:
+        new_to_predict = dataset.to_predict.copy()
+        new_to_predict = CatEncodedDataFrame().from_pandas(new_to_predict)
+    else:
+        new_to_predict = None
+    dataset = Dataset(train=new_train, test=new_test, train_labels=new_train_labels, test_labels=new_test_labels, to_predict=new_to_predict)
+    return dataset

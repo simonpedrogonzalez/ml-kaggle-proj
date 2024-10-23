@@ -57,10 +57,11 @@ class Node:
         self.children[(fi, vi)] = node
         self.is_leaf = False
     
-    # def get_depth(self):
-    #     if self.is_leaf():
-    #         return 0
-    #     return 1 + max([child.get_depth() for child in self.children])
+    def get_depth(self):
+        if self.is_leaf:
+            return 0
+        children_list = list(self.children.values())
+        return 1 + max([child.get_depth() for child in children_list])
 
 
 class FastNode:
