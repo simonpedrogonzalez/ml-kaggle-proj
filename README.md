@@ -1,15 +1,11 @@
 # ml-kaggle-proj
 This is the Kaggle Project developed by Simon Gonzalez CS5350/6350 in University of Utah
 
-# ml-library
-This is a machine learning library developed by Simon Gonzalez for CS5350/6350 in University of Utah.
+## Submission 1: Using my own library
 
-## Run Homework reports
-
-Every homework has a `run_h*.sh` script that runs the homework and saves the output to a file in the corresponding `reports` folder. Take into account that **many scripts can take a long time to run**.
-
-- HW1 Decision Tree: run `run_h1.sh`
-- HW2 Bagging and Boosting: run `run_h2.sh`
+The reports are in the `kaggle_proj/reports/first_attempt_reports` folder.
+The code used are in single_tree_attempt.py and ensemble_attempt.py
+This code might not run properly, as some .
 
 ## Library usage
 

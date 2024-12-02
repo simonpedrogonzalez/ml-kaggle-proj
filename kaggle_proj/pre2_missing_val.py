@@ -5,17 +5,18 @@ from kaggle_proj.pre1_read_data import pre1_read_data
 
 """Test different ways of handling missing values"""
 
-all_data, all_train, to_predict = pre1_read_data()
-
-
-all_train = all_train.replace('?', np.nan)
-print(f"Current len of all_train: {all_train.shape[0]}")
-print(f"Percentage of missing values in train: {all_train.isnull().sum().sum() / all_train.shape[0]}")
-to_predict = to_predict.replace('?', np.nan)
-print(f"Current len of to_predict: {to_predict.shape[0]}")
-print(f"Percentage of missing values in to_predict: {to_predict.isnull().sum().sum() / to_predict.shape[0]}")
 
 def pre2_impute_mode():
+
+    all_data, all_train, to_predict = pre1_read_data()
+
+    all_data = all_data.replace('?', np.nan)
+    all_train = all_train.replace('?', np.nan)
+    print(f"Current len of all_train: {all_train.shape[0]}")
+    print(f"Percentage of missing values in train: {all_train.isnull().sum().sum() / all_train.shape[0]}")
+    to_predict = to_predict.replace('?', np.nan)
+    print(f"Current len of to_predict: {to_predict.shape[0]}")
+    print(f"Percentage of missing values in to_predict: {to_predict.isnull().sum().sum() / to_predict.shape[0]}")
     # impute missing values with mode
     new_all_train = all_train.fillna(all_train.mode().iloc[0])
     # remove income>50k row from to_predict because it has nans
@@ -27,4 +28,16 @@ def pre2_impute_mode():
     
     return new_all_data, new_all_train, new_to_predict
 
+def do_nothing():
+
+    all_data, all_train, to_predict = pre1_read_data()
+
+    all_data = all_data.replace('?', np.nan)
+    all_train = all_train.replace('?', np.nan)
+    print(f"Current len of all_train: {all_train.shape[0]}")
+    print(f"Percentage of missing values in train: {all_train.isnull().sum().sum() / all_train.shape[0]}")
+    to_predict = to_predict.replace('?', np.nan)
+    print(f"Current len of to_predict: {to_predict.shape[0]}")
+    print(f"Percentage of missing values in to_predict: {to_predict.isnull().sum().sum() / to_predict.shape[0]}")
+    return all_data, all_train, to_predict
 

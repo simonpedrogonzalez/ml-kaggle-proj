@@ -7,40 +7,45 @@ from sklearn.model_selection import cross_val_score, GridSearchCV, KFold, Random
 
 from scipy.stats import uniform, randint
 import numpy as np
-import pickle
 import pandas as pd
+
 
 
 # Load data
 all_data, new_train, new_predict = pre3_feature_eng_as_dummies()
 
+# Split data
+
+params = {'alpha': 0.42200468581298445, 'colsample_bytree': 0.7481475627503198, 'gamma': 0.2722306660745843, 'lambda': 1.6844055113191525, 'learning_rate': 0.16209292125521335, 'max_depth': 4, 'min_child_weight': 1, 'n_estimators': 222, 'subsample': 0.8866874343070568}
+
+xgb_model = xgb.XGBClassifier(objective="binary:logistic", random_state=0, **params)
 
 # Split data
 X = new_train.drop('income>50K', axis=1)
 y = new_train['income>50K']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0, stratify=y)
 
-# best model
-with open('best_xgb_model.pkl', 'rb') as file:
-    best_model = pickle.load(file)
+# Train
+xgb_model.fit(X_train, y_train)
 
-pred = best_model.predict(X_test)
-print(confusion_matrix(y_test, pred))
-print(classification_report(y_test, pred))
+# Predict
+pred = xgb_model.predict(X_test)
+pred_proba = xgb_model.predict_proba(X_test)
 
-pred_proba = best_model.predict_proba(X_test)
-print(roc_auc_score(y_test, pred_proba[:, 1]))
+# Print the results
+print(f"Confusion Matrix:\n{confusion_matrix(y_test, pred)}")
+print(f"Classification Report:\n{classification_report(y_test, pred)}")
+print(f"ROC AUC Score:\n{roc_auc_score(y_test, pred_proba[:, 1])}")
 
-# train with all new_train
 
-best_model.fit(X, y)
-
-# predict new_predict and write a pd df with ID and prediction
+# Train with all new_train data and predict to_predict
+xgb_model.fit(X, y)
 
 X_predict = new_predict.drop('income>50K', axis=1)
 
-pred = best_model.predict(X_predict)
-pred_proba = best_model.predict_proba(X_predict)
+pred = xgb_model.predict(X_predict)
+
+pred_proba = xgb_model.predict_proba(X_predict)
 
 pred_df = pd.DataFrame(pred_proba[:, 1], columns=['Prediction'])
 
