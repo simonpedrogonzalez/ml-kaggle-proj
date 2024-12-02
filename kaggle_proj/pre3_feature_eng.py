@@ -85,16 +85,21 @@ def pre3_feature_eng_as_dummies():
     all_data = all_data.drop(['fnlwgt', 'education'], axis=1)
 
 
-
-
     # Num vars (or ordinal vars)
     num_vars = ['capital_diff', 'native.country', 'age', 'hours.per.week', 'education.num']
     # scale num vars
+
     from sklearn.preprocessing import StandardScaler
     scaler = StandardScaler()
     all_data[num_vars] = scaler.fit_transform(all_data[num_vars])
 
-    # nominal vars
+    # # nominal vars
+    # num categories
+    # marital.status 7
+    # occupation 15
+    # relationship 6
+    # race 5
+    # sex 2
     cat_vars = ['workclass', 'marital.status', 'occupation', 'relationship', 'race', 'sex']
     # one hot encode
     all_data = pd.get_dummies(all_data, columns=cat_vars)
