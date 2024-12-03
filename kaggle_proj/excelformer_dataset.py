@@ -7,6 +7,10 @@ from torch_frame.data import Dataset, DataLoader
 from torch_frame.transforms import MutualInformationSort
 from torch_frame.typing import TaskType
 
+
+batch_size = 512
+
+
 # Load data
 all_data, new_train, new_predict = pre3_feature_eng_as_dummies()
 
@@ -53,8 +57,6 @@ sorted_train_tensor_frame = mutual_info_sort(train_dataset.tensor_frame)
 # Use original tensor frames for validation and testing
 val_tensor_frame = val_dataset.tensor_frame
 test_tensor_frame = test_dataset.tensor_frame
-
-batch_size = 512
 
 # Create DataLoaders
 train_loader = DataLoader(sorted_train_tensor_frame, batch_size=batch_size, shuffle=True)

@@ -14,7 +14,7 @@ def get_model(model_checkpoint_path, test_dataset):
 
     # Initialize ExcelFormer
     model = ExcelFormer(
-        in_channels=48,  # Number of numerical features
+        in_channels=256,  # Number of numerical features
         out_channels=test_dataset.num_classes,  # Number of target classes
         num_cols=len(test_dataset.feat_cols),  # Total number of columns
         num_layers=4,  # Customize based on complexity
@@ -22,9 +22,9 @@ def get_model(model_checkpoint_path, test_dataset):
         col_stats=test_dataset.col_stats,  # Column statistics
         col_names_dict=test_dataset.tensor_frame.col_names_dict,  # Column names
         mixup="feature",  # Mixup strategy
-        residual_dropout=0.,
-        diam_dropout=0.3,
-        aium_dropout=0.,
+        # residual_dropout=0.,
+        # diam_dropout=0.3,
+        # aium_dropout=0.,
     ).to(device)
 
     # Load model if checkpoint exists
