@@ -44,12 +44,13 @@ mutual_info_sort = MutualInformationSort(task_type=TaskType.BINARY_CLASSIFICATIO
 mutual_info_sort.fit(train_dataset.tensor_frame, train_dataset.col_stats)
 # train_dataset.tensor_frame = mutual_info_sort(train_dataset.tensor_frame)
 sorted_tensor_frame = mutual_info_sort(train_dataset.tensor_frame)
+sorted_test_tensor_frame = mutual_info_sort(test_dataset.tensor_frame)
 
 
 
 # Create a DataLoader for batching and shuffling
 train_loader = DataLoader(sorted_tensor_frame, batch_size=512, shuffle=True)
-test_loader = DataLoader(sorted_tensor_frame, batch_size=512, shuffle=False)
+test_loader = DataLoader(sorted_test_tensor_frame, batch_size=512, shuffle=False)
 
 
 import os
