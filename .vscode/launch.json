@@ -19,6 +19,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/kaggle_proj/cat_boosting.py",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "ExcelFormer",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/kaggle_proj/excel_former.py",
+            "console": "integratedTerminal"
         }
     ]
 }
