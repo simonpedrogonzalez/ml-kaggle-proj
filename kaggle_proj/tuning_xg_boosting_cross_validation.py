@@ -31,7 +31,7 @@ def objective(trial):
     
     model = xgb.XGBClassifier(objective="binary:logistic", random_state=0, **params)
     
-    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
+    cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=0)
     
     scores = cross_val_score(model, X, y, cv=cv, scoring='roc_auc', n_jobs=-1)
     return np.mean(scores)
@@ -41,7 +41,7 @@ def report(study, trial):
 
 # default optuna algo is TPE
 study = optuna.create_study(direction="maximize")
-study.optimize(objective, n_trials=1000, n_jobs=4, callbacks=[report])
+study.optimize(objective, n_trials=3, n_jobs=4, callbacks=[report])
 
 print("Best parameters:", study.best_params)
 print("Best cross-validated AUC:", study.best_value)
@@ -52,8 +52,11 @@ best_model.fit(X, y)
 with open('best_xgb_model_cross_valid_tuning.pkl', 'wb') as f:
     pickle.dump(best_model, f)
 
+# date
+import datetime
+date_as_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 # Save the best parameters
-with open('best_xgb_model_cross_valid_tuning_params.txt', 'w') as f:
+with open(f'best_xgb_model_cross_valid_tuning_params{date_as_string}.txt', 'w') as f:
     f.write(f"Best Parameters:\n{study.best_params}\n")
     f.write(f"Best Cross-Validated AUC:\n{study.best_value:.4f}\n")
 

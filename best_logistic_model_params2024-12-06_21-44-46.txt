@@ -1,0 +1,4 @@
+Best Parameters:
+{'n_components': 31, 'C': 0.6174168219570069}
+Best Cross-Validated AUC:
+0.8974
