@@ -17,7 +17,7 @@ def get_model(model_checkpoint_path, test_dataset):
         in_channels=48,  # Number of numerical features
         out_channels=test_dataset.num_classes,  # Number of target classes
         num_cols=len(test_dataset.feat_cols),  # Total number of columns
-        num_layers=5,  # Customize based on complexity
+        num_layers=2,  # Customize based on complexity
         num_heads=4,  # Number of attention heads
         col_stats=test_dataset.col_stats,  # Column statistics
         col_names_dict=test_dataset.tensor_frame.col_names_dict,  # Column names

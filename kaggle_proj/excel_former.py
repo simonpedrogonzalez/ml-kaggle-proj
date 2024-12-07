@@ -1,6 +1,6 @@
 import torch
-from excelformer_dataset import loaders, datasets, get_predict_loader
-from excel_former_model import get_best_validation_model, get_train_model, save_train_model, save_best_validation_model
+from excelformer_dataset import loaders, datasets, get_predict_loader, get_all_data_loader
+from excel_former_model import get_best_validation_model, get_model, get_train_model, save_train_model, save_best_validation_model
 import tqdm
 import torch.nn.functional as F
 from torchmetrics import AUROC
@@ -16,10 +16,10 @@ if metrics is None:
     best_val_auc_roc = 0
 else:
     best_val_auc_roc = best_metrics['val_roc_auc']
-num_epochs = 1000
+num_epochs = 100
 use_mixup = True  # Toggle mixup as needed
 
-def test(loader):
+def test(model, loader):
     model.eval()  # Set model to evaluation mode
     metric = AUROC(task="binary").to(device)  # Initialize TorchMetrics AUROC for binary classification
 
@@ -42,7 +42,7 @@ def test(loader):
 def report(epoch, metrics):
     print(f"Epoch {epoch}, Loss: {metrics['loss']:.4f}, Test AUROC: {metrics['test_roc_auc']:.4f}, Val AUROC: {metrics['val_roc_auc']:.4f}")
 
-def train(use_mixup=True, epoch=None):
+def train(model, train_loader, use_mixup=True, epoch=None):
    
     model.train()  # Set model to training mode
     loss_accum = total_count = 0  # Initialize accumulated loss and sample count
@@ -73,8 +73,80 @@ def train(use_mixup=True, epoch=None):
     return avg_loss
 
 
+def retrain_on_all_data():
+    print("Retraining model on all data...")
+    loader = get_all_data_loader()
+    _, test_loader, val_loader = loaders()
+    
+    model, criterion, optimizer, lr_scheduler, start_epoch, device, metrics = get_best_validation_model(test_dataset)
+    # hack to get a new model
+    model, criterion, optimizer, lr_scheduler, _, _, _ = get_model("inexistent_file", test_dataset)
+    
+    num_epochs = start_epoch
+    # train model from scratch with all data up to the best validation model number of epochs
+    for epoch in range(0, num_epochs):
+        # Train for one epoch
+        avg_loss = train(model, loader, use_mixup=use_mixup, epoch=epoch)
 
-def export_predictions_to_csv():
+        # Step the learning rate scheduler
+        lr_scheduler.step()
+
+        # # Evaluate metrics, this metrics are over the 
+        # training set effectively in this case, so they
+        # are not meaningful other than for checking
+        # that the model is not diverging
+        test_roc_auc = test(model, test_loader)
+        val_roc_auc = test(model, val_loader)
+
+        metrics = {
+            "test_roc_auc": test_roc_auc,
+            "val_roc_auc": val_roc_auc,
+            "loss": avg_loss
+        }
+
+        report(epoch, metrics)
+
+        # Save model checkpoint
+        save_train_model(epoch, model, optimizer, lr_scheduler, metrics)
+        # if val_roc_auc > best_val_auc_roc:
+            # save_best_validation_model(epoch, model, optimizer, lr_scheduler, metrics)
+            # best_val_auc_roc = val_roc_auc
+    
+    loader = get_predict_loader()
+    model.eval()  # Set model to evaluation mode
+    predictions = []
+
+    with torch.no_grad():
+        for tf in tqdm.tqdm(loader, desc="Predicting"):
+            tf = tf.to(device)
+            logits = model(tf)  # Forward pass
+            probabilities = F.softmax(logits, dim=1)[:, 1]  # Probabilities for the positive class
+            predictions.extend(probabilities.cpu().numpy())
+
+    # Create a DataFrame with ID and Prediction
+    predictions_df = pd.DataFrame({
+        "ID": range(1, len(predictions) + 1),  # Assign IDs starting from 1
+        "Prediction": predictions
+    })
+
+    # add date and time to the file name
+    import datetime
+    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    output_file = f"excelformer_predictions_retrain_{date}.csv"
+    
+    boosting_pred_df = pd.read_csv('boosting_predictions_best_model2.csv')
+    # compare the two dataframes
+    # calculating the difference between the two dataframes
+    diff = predictions_df['Prediction'] - boosting_pred_df['Prediction']
+    avg_diff_per_row = diff.abs().mean()
+    print(f"Average difference per row between boosting and excelform: {avg_diff_per_row:.4f}")
+
+    # Export to CSV
+    predictions_df.to_csv(output_file, index=False)
+    print(f"Predictions saved to {output_file}")
+    
+
+def export_predictions_to_csv(model):
 
     loader = get_predict_loader()
     model, criterion, optimizer, lr_scheduler, start_epoch, device, metrics = get_best_validation_model(test_dataset)
@@ -110,32 +182,50 @@ def export_predictions_to_csv():
     predictions_df.to_csv(output_file, index=False)
     print(f"Predictions saved to {output_file}")
 
+# acum_metrics = []
+
+# for epoch in range(start_epoch, num_epochs):
+#     # Train for one epoch
+#     avg_loss = train(model, train_loader, use_mixup=use_mixup, epoch=epoch)
+
+#     # Step the learning rate scheduler
+#     lr_scheduler.step()
+
+#     # Evaluate metrics
+#     test_roc_auc = test(model, test_loader)
+#     val_roc_auc = test(model, val_loader)
+
+#     metrics = {
+#         "test_roc_auc": test_roc_auc,
+#         "val_roc_auc": val_roc_auc,
+#         "loss": avg_loss
+#     }
+
+#     report(epoch, metrics)
+#     acum_metrics.append(metrics)
+
+#     # Save model checkpoint
+#     save_train_model(epoch, model, optimizer, lr_scheduler, metrics)
+#     if val_roc_auc > best_val_auc_roc:
+#         save_best_validation_model(epoch, model, optimizer, lr_scheduler, metrics)
+#         best_val_auc_roc = val_roc_auc
+
+# import matplotlib.pyplot as plt
+# import seaborn
+
+# # plot lineplot of val AUC ROC and loss
+# df = pd.DataFrame(acum_metrics)
+# plt.figure(figsize=(10, 5))
+# seaborn.lineplot(data=df, x=df.index, y="val_roc_auc", label="Validation AUROC")
+# seaborn.lineplot(data=df, x=df.index, y="loss", label="Loss")
+# plt.xlabel("Epoch")
+# plt.ylabel("Value")
+# plt.title("Validation AUROC and Loss")
+# plt.legend()
+# # save plot
+# plt.savefig("excelformer_training_plot.png")
+# plt.show()
 
 
-for epoch in range(start_epoch, num_epochs):
-    # Train for one epoch
-    avg_loss = train(use_mixup=use_mixup, epoch=epoch)
-
-    # Step the learning rate scheduler
-    lr_scheduler.step()
-
-    # Evaluate metrics
-    test_roc_auc = test(test_loader)
-    val_roc_auc = test(val_loader)
-
-    metrics = {
-        "test_roc_auc": test_roc_auc,
-        "val_roc_auc": val_roc_auc,
-        "loss": avg_loss
-    }
-
-    report(epoch, metrics)
-
-    # Save model checkpoint
-    save_train_model(epoch, model, optimizer, lr_scheduler, metrics)
-    if val_roc_auc > best_val_auc_roc:
-        save_best_validation_model(epoch, model, optimizer, lr_scheduler, metrics)
-        best_val_auc_roc = val_roc_auc
-
-
-export_predictions_to_csv()
+# export_predictions_to_csv()
+retrain_on_all_data()

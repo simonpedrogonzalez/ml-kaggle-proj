@@ -19,21 +19,25 @@ X = new_train.drop('income>50K', axis=1)
 y = new_train['income>50K']
 X_train_val, X_test, y_train_val, y_test = train_test_split(X, y, test_size=0.2, random_state=0, stratify=y)
 
+all_X = X
+all_y = y
+
 # # Split training+validation into training and validation sets (80-20 split)
 X_train, X_val, y_train, y_val = train_test_split(X_train_val, y_train_val, test_size=0.2, random_state=0, stratify=y_train_val)
 
-# X_train = X
-# y_train = y
+import warnings
 
-# # Convert non-float64 columns from bool to int
-for col in X_train.columns:
-    if X_train[col].dtype == 'bool':
-        X_train[col] = X_train[col].astype(int)
-        X_val[col] = X_val[col].astype(int)
-        X_test[col] = X_test[col].astype(int)
-        new_predict[col] = new_predict[col].astype(int)
-
-
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    # # Convert non-float64 columns from bool to int
+    for col in X_train.columns:
+        if X_train[col].dtype == 'bool':
+            # ignore all warnings here
+            X_train[col] = X_train[col].astype(int)
+            X_val[col] = X_val[col].astype(int)
+            X_test[col] = X_test[col].astype(int)
+            new_predict[col] = new_predict[col].astype(int)
+            all_X[col] = all_X[col].astype(int)
 
 # Map all features (numerical + dummy encoded) to `stype.numerical`
 col_to_stype = {
@@ -51,12 +55,20 @@ col_to_stype_no_target = {
 }
 
 predict_dataset = Dataset(new_predict, col_to_stype=col_to_stype_no_target)
+all_dataset = Dataset(all_X.assign(target=all_y), col_to_stype=col_to_stype, target_col="target")
 
 # Materialize datasets
 train_dataset.materialize()
 val_dataset.materialize()
 test_dataset.materialize()
 predict_dataset.materialize()
+all_dataset.materialize()
+
+print("Train dataset shape:", train_dataset.num_rows)
+print("Validation dataset shape:", val_dataset.num_rows)
+print("Test dataset shape:", test_dataset.num_rows)
+print("Predict dataset shape:", predict_dataset.num_rows)
+print("All dataset shape:", all_dataset.num_rows)
 # dataset = train_dataset
 # train_dataset = dataset[:0.7]  # First 80% for training
 # test_dataset = dataset[0.7:]  # Last 20% for testing
@@ -75,12 +87,14 @@ sorted_train_tensor_frame = mutual_info_sort(train_dataset.tensor_frame)
 val_tensor_frame = mutual_info_sort(val_dataset.tensor_frame)
 test_tensor_frame = mutual_info_sort(test_dataset.tensor_frame)
 predict_tensor_frame = mutual_info_sort(predict_dataset.tensor_frame)
+all_tensor_frame = mutual_info_sort(all_dataset.tensor_frame)
 
 # Create DataLoaders
 train_loader = DataLoader(sorted_train_tensor_frame, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(val_tensor_frame, batch_size=batch_size, shuffle=False)
 test_loader = DataLoader(test_tensor_frame, batch_size=batch_size, shuffle=False)
 predict_loader = DataLoader(predict_tensor_frame, batch_size=batch_size, shuffle=False)
+all_loader = DataLoader(all_tensor_frame, batch_size=batch_size, shuffle=False)
 
 def loaders():
     return train_loader, test_loader, val_loader
@@ -90,3 +104,6 @@ def datasets():
 
 def get_predict_loader():
     return predict_loader
+
+def get_all_data_loader():
+    return all_loader

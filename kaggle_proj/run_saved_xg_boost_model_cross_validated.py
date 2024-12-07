@@ -16,7 +16,7 @@ all_data, new_train, new_predict = pre3_feature_eng_as_dummies()
 
 # Split data
 
-params = {'alpha': 0.42200468581298445, 'colsample_bytree': 0.7481475627503198, 'gamma': 0.2722306660745843, 'lambda': 1.6844055113191525, 'learning_rate': 0.16209292125521335, 'max_depth': 4, 'min_child_weight': 1, 'n_estimators': 222, 'subsample': 0.8866874343070568}
+params = {'alpha': 0.2891335075449573, 'colsample_bytree': 0.7160313513667815, 'gamma': 0.2278491535631086, 'lambda': 1.4823962051115953, 'learning_rate': 0.14931676312890674, 'max_depth': 4, 'min_child_weight': 1, 'n_estimators': 216, 'subsample': 0.9477796934526257}
 
 xgb_model = xgb.XGBClassifier(objective="binary:logistic", random_state=0, **params)
 
@@ -58,5 +58,5 @@ import datetime
 
 date_as_string = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-pred_df.to_csv(f"boosting_predictions_best_model_{date_as_string}.csv", index=False)
+pred_df.to_csv(f"boosting_predictions_best_model_cross_valid_and_bayes_tuned_{date_as_string}.csv", index=False)
 
