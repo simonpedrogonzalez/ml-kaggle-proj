@@ -1,0 +1,4 @@
+Best Parameters:
+{'alpha': 0.2206221805728857, 'colsample_bytree': 0.7050997393917311, 'gamma': 0.25227398092194825, 'lambda': 1.4849340795599348, 'learning_rate': 0.1551739370120038, 'max_depth': 4, 'min_child_weight': 1, 'n_estimators': 218, 'subsample': 0.9400050852911308}
+Best Cross-Validated AUC:
+0.9297

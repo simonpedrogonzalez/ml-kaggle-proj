@@ -9,10 +9,10 @@ import logging
 import os
 
 # Limit thread usage for better compatibility
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
+# os.environ["OMP_NUM_THREADS"] = "1"
+# os.environ["MKL_NUM_THREADS"] = "1"
+# os.environ["NUMEXPR_NUM_THREADS"] = "1"
+# os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 
 logging.basicConfig(level=logging.INFO)
@@ -37,7 +37,7 @@ def objective(trial):
     model = LogisticRegression(solver='lbfgs', C=C, random_state=0, max_iter=1000)
 
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
-    roc_auc_scores = cross_val_score(model, X_pca, y, cv=cv, scoring="roc_auc", n_jobs=4)
+    roc_auc_scores = cross_val_score(model, X_pca, y, cv=cv, scoring="roc_auc", n_jobs=1)
     
     mean_roc_auc = np.mean(roc_auc_scores)    
     return mean_roc_auc
@@ -47,7 +47,7 @@ def report(study, trial):
 
 
 study = optuna.create_study(direction="maximize")
-study.optimize(objective, n_trials=3, n_jobs=1, callbacks=[report])
+study.optimize(objective, n_trials=3000, n_jobs=-1, callbacks=[report])
 
 print("Best Trial:")
 best_trial = study.best_trial

@@ -14,6 +14,14 @@ all_data, new_train, new_predict = pre3_feature_eng_as_dummies()
 X = new_train.drop('income>50K', axis=1)
 y = new_train['income>50K']
 
+# import os
+
+# # # Limit thread usage for better compatibility
+# os.environ["OMP_NUM_THREADS"] = "1"
+# os.environ["MKL_NUM_THREADS"] = "1"
+# os.environ["NUMEXPR_NUM_THREADS"] = "1"
+# os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
 def objective(trial):
     # Search space reduced around the values that proved good
     # in the random search
@@ -31,9 +39,9 @@ def objective(trial):
     
     model = xgb.XGBClassifier(objective="binary:logistic", random_state=0, **params)
     
-    cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=0)
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
     
-    scores = cross_val_score(model, X, y, cv=cv, scoring='roc_auc', n_jobs=-1)
+    scores = cross_val_score(model, X, y, cv=cv, scoring='roc_auc', n_jobs=1)
     return np.mean(scores)
 
 def report(study, trial):
@@ -41,7 +49,7 @@ def report(study, trial):
 
 # default optuna algo is TPE
 study = optuna.create_study(direction="maximize")
-study.optimize(objective, n_trials=3, n_jobs=4, callbacks=[report])
+study.optimize(objective, n_trials=3000, n_jobs=-1, callbacks=[report])
 
 print("Best parameters:", study.best_params)
 print("Best cross-validated AUC:", study.best_value)
