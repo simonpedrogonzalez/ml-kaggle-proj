@@ -9,14 +9,20 @@ import numpy as np
 
 train_dataset, test_dataset, val_dataset = datasets()
 train_loader, test_loader, val_loader = loaders()
-model, criterion, optimizer, lr_scheduler, start_epoch, device, metrics = get_train_model(test_dataset)
-best_model = get_best_validation_model(test_dataset)
-best_metrics = best_model[-1]
-if metrics is None:
-    best_val_auc_roc = 0
-else:
-    best_val_auc_roc = best_metrics['val_roc_auc']
-num_epochs = 100
+
+# hack
+all_loader = get_all_data_loader()
+train_loader = all_loader
+
+model, criterion, optimizer, lr_scheduler, start_epoch, device, metrics = get_model("inexistent", test_dataset)
+# best_model = get_best_validation_model(test_dataset)
+# best_metrics = best_model[-1]
+# if metrics is None:
+#     best_val_auc_roc = 0
+# else:
+#     best_val_auc_roc = best_metrics['val_roc_auc']
+best_val_auc_roc = 0
+num_epochs = 90
 use_mixup = True  # Toggle mixup as needed
 
 def test(model, loader):
@@ -149,7 +155,7 @@ def retrain_on_all_data():
 def export_predictions_to_csv(model):
 
     loader = get_predict_loader()
-    model, criterion, optimizer, lr_scheduler, start_epoch, device, metrics = get_best_validation_model(test_dataset)
+    # model, criterion, optimizer, lr_scheduler, start_epoch, device, metrics = get_best_validation_model(test_dataset)
     model.eval()  # Set model to evaluation mode
     predictions = []
 
@@ -182,33 +188,38 @@ def export_predictions_to_csv(model):
     predictions_df.to_csv(output_file, index=False)
     print(f"Predictions saved to {output_file}")
 
-# acum_metrics = []
+acum_metrics = []
+ideal_epoch = 0
 
-# for epoch in range(start_epoch, num_epochs):
-#     # Train for one epoch
-#     avg_loss = train(model, train_loader, use_mixup=use_mixup, epoch=epoch)
+for epoch in range(start_epoch, num_epochs):
+    # Train for one epoch
+    avg_loss = train(model, train_loader, use_mixup=use_mixup, epoch=epoch)
 
-#     # Step the learning rate scheduler
-#     lr_scheduler.step()
+    # Step the learning rate scheduler
+    lr_scheduler.step()
 
-#     # Evaluate metrics
-#     test_roc_auc = test(model, test_loader)
-#     val_roc_auc = test(model, val_loader)
+    # Evaluate metrics
+    test_roc_auc = test(model, test_loader)
+    val_roc_auc = test(model, val_loader)
 
-#     metrics = {
-#         "test_roc_auc": test_roc_auc,
-#         "val_roc_auc": val_roc_auc,
-#         "loss": avg_loss
-#     }
+    metrics = {
+        "test_roc_auc": test_roc_auc,
+        "val_roc_auc": val_roc_auc,
+        "loss": avg_loss
+    }
 
-#     report(epoch, metrics)
-#     acum_metrics.append(metrics)
+    report(epoch, metrics)
+    acum_metrics.append(metrics)
 
-#     # Save model checkpoint
-#     save_train_model(epoch, model, optimizer, lr_scheduler, metrics)
-#     if val_roc_auc > best_val_auc_roc:
-#         save_best_validation_model(epoch, model, optimizer, lr_scheduler, metrics)
-#         best_val_auc_roc = val_roc_auc
+    # Save model checkpoint
+    # save_train_model(epoch, model, optimizer, lr_scheduler, metrics)
+    if val_roc_auc > best_val_auc_roc:
+    #     save_best_validation_model(epoch, model, optimizer, lr_scheduler, metrics)
+        best_val_auc_roc = val_roc_auc
+        ideal_epoch = epoch
+
+print(f"Ideal epoch: {ideal_epoch}")
+print(f"Best validation AUROC: {best_val_auc_roc}")
 
 # import matplotlib.pyplot as plt
 # import seaborn
@@ -227,5 +238,5 @@ def export_predictions_to_csv(model):
 # plt.show()
 
 
-# export_predictions_to_csv()
-retrain_on_all_data()
+export_predictions_to_csv(model)
+# retrain_on_all_data()

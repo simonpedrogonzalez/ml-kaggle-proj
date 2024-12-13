@@ -35,10 +35,10 @@ catboost_model = CatBoostClassifier(random_state=0)
 # Perform the grid search
 grid_search_result = catboost_model.grid_search(
     param_grid, 
-    X=X_train, y=y_train,  # Replace with your training data
-    cv=5,                   # 5-fold cross-validation
+    X=X_train, y=y_train,
+    cv=5,
     partition_random_seed=42,
-    refit=True,             # Refit the best model after grid search
+    refit=True, 
     calc_cv_statistics=True
 )
 

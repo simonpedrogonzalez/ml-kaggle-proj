@@ -155,25 +155,25 @@ def report(data):
     plt.title('Best Models Test Error')
     plt.savefig('kaggle_proj/reports/best_models_test_error2.png')
 
-    # # best of all
-    # best_model = best_models[0][0]
-    # # use best model for to_predict
-    # model = all_models[best_model]
-    # model.fit(data.train, data.train_labels)
-    # train_pred = model.predict(data.train)
-    # test_pred = model.predict(data.test)
-    # train_error = avg_error(train_pred, data.train_labels.values)
-    # test_error = avg_error(test_pred, data.test_labels.values)
-    # pred_to_predict = model.predict(data.to_predict)
-    # best_name = best_model
-    # df2 = pd.DataFrame({'train_error': [train_error], 'test_error': [test_error], 'best_model': [best_name]})
-    # df2.to_csv('kaggle_proj/reports/best_model_report.csv', index=False)
-    # # map predictions to original values
-    # map_dict = data.train_labels.c2s
-    # mapped_pred_to_predict = [map_dict[pred] for pred in pred_to_predict]
-    # ids = np.arange(1, len(mapped_pred_to_predict) + 1)
-    # df3 = pd.DataFrame({'ID': ids, 'Prediction': mapped_pred_to_predict})
-    # df3.to_csv('kaggle_proj/reports/predictions.csv', index=False)
+    # best of all
+    best_model = best_models[0][0]
+    # use best model for to_predict
+    model = all_models[best_model]
+    model.fit(data.train, data.train_labels)
+    train_pred = model.predict(data.train)
+    test_pred = model.predict(data.test)
+    train_error = avg_error(train_pred, data.train_labels.values)
+    test_error = avg_error(test_pred, data.test_labels.values)
+    pred_to_predict = model.predict(data.to_predict)
+    best_name = best_model
+    df2 = pd.DataFrame({'train_error': [train_error], 'test_error': [test_error], 'best_model': [best_name]})
+    df2.to_csv('kaggle_proj/reports/best_model_report.csv', index=False)
+    # map predictions to original values
+    map_dict = data.train_labels.c2s
+    mapped_pred_to_predict = [map_dict[pred] for pred in pred_to_predict]
+    ids = np.arange(1, len(mapped_pred_to_predict) + 1)
+    df3 = pd.DataFrame({'ID': ids, 'Prediction': mapped_pred_to_predict})
+    df3.to_csv('kaggle_proj/reports/predictions.csv', index=False)
 
 
 # run(data)

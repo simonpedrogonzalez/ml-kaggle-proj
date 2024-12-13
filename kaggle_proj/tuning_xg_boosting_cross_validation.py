@@ -10,17 +10,8 @@ import logging
 from pre3_feature_eng import pre3_feature_eng_as_dummies
 all_data, new_train, new_predict = pre3_feature_eng_as_dummies()
 
-# Separate features and target
 X = new_train.drop('income>50K', axis=1)
 y = new_train['income>50K']
-
-# import os
-
-# # # Limit thread usage for better compatibility
-# os.environ["OMP_NUM_THREADS"] = "1"
-# os.environ["MKL_NUM_THREADS"] = "1"
-# os.environ["NUMEXPR_NUM_THREADS"] = "1"
-# os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 def objective(trial):
     # Search space reduced around the values that proved good
